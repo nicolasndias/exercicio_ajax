@@ -1,39 +1,26 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nicolas Dias - GitHub Page</title>
+    <title>Perfil do GitHub - Nicolas Dias</title>
     <link rel="stylesheet" href="main.css">
-</head>
 
+</head>
 <body>
-    <header>
-        <div class="container">
-            <img id="avatar" class="profile-avatar" src="https://placehold.co/180x180" alt=".">
-            <h1 class="profile-name" id="name"></h1>
-            <h2 class="profile-username" id="username"></h2>
-            <ul class="numbers">
-                <li class="numbers-item">
-                    <h4>Repositórios</h4>
-                    <span id="repos"></span>
-                </li>
-                <li class="numbers-item">
-                    <h4>Seguidores</h4>
-                    <span id="followers"></span>
-                </li>
-                <li class="numbers-item">
-                    <h4>Seguindo</h4>
-                    <span id="following"></span>
-                </li>
-            </ul>
-            <a href="#" id="link" class="profile-link">Ver no Github</a>
-        </div>
-    </header>
+    <div class="card">
+        <p id="status">Carregando dados do GitHub...</p>
+        <img id="avatar" alt="Avatar do usuário">
+        <h2 id="name"></h2>
+        <p id="username"></p>
+        <p>Repositórios públicos: <span id="repos"></span></p>
+        <p>Seguidores: <span id="followers"></span></p>
+        <p>Seguindo: <span id="following"></span></p>
+        <a id="link" target="_blank">Ver perfil no GitHub</a>
+    </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             const nameElement = document.querySelector('#name');
             const usernameElement = document.querySelector('#username');
             const avatarElement = document.querySelector('#avatar');
@@ -41,25 +28,31 @@
             const followersElement = document.querySelector('#followers');
             const followingElement = document.querySelector('#following');
             const linkElement = document.querySelector('#link');
+            const statusElement = document.querySelector('#status');
 
-            fetch('https://api.github.com/users/nicolasndias')
-                .then(function (res) {
-                    return res.json();
-                })
-                .then(function (json) {
-                    nameElement.innerText = json.name;
-                    usernameElement.innerText = json.login;
-                    avatarElement.src = json.avatar_url;
-                    followingElement.innerText = json.following;
-                    followersElement.innerText = json.followers;
-                    reposElement.innerText = json.public_repos;
-                    linkElement.href = json.html_url;
-                })
-                .catch(function (error) {
-                    console.error('Erro ao buscar dados do GitHub:', error);
-                });
+            try {
+                const res = await fetch('https://api.github.com/users/nicolasndias');
+
+                if (!res.ok) {
+                    throw new Error(`Erro HTTP: ${res.status}`);
+                }
+
+                const json = await res.json();
+
+                nameElement.innerText = json.name || 'Sem nome disponível';
+                usernameElement.innerText = '@' + json.login;
+                avatarElement.src = json.avatar_url;
+                followingElement.innerText = json.following;
+                followersElement.innerText = json.followers;
+                reposElement.innerText = json.public_repos;
+                linkElement.href = json.html_url;
+
+                statusElement.innerText = ''; // limpa a mensagem de status
+            } catch (error) {
+                console.error('Erro ao buscar dados do GitHub:', error);
+                statusElement.innerText = 'Não foi possível carregar os dados do GitHub.';
+            }
         });
     </script>
 </body>
-
 </html>
